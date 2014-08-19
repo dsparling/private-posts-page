@@ -5,8 +5,8 @@
 /*
 Plugin Name: Private Posts Page
 Plugin URI: http://plugins.svn.wordpress.org/private-posts-page
-Description: Private Posts Page will force your designated posts page (blog) to behave like  any normal page that is set to private visibility. That is, for non-logged in users the page will return a 404 error and the posts page title will be removed from the menu. Additionally, all posts will set as private as well. The feed will similarly be disabled.
-Version: 1.0.0
+Description: Private Posts Page will force your designated posts page (blog) to behave like any normal page that is set to private visibility. That is, for non-logged in users the page will return a 404 error and the posts page title will be removed from the menu. Additionally, all posts will set as private as well. The feed will similarly be disabled and search will not return private pages in results.
+Version: 1.1.0
 Author: Doug Sparling
 Author URI: http://www.dougsparling.org
 License: GPLv2 or later
@@ -33,7 +33,8 @@ if ( !class_exists( "PrivatePostsPage" ) ) {
 		public function __construct() {
 			add_action( 'template_redirect', array( $this, 'make_posts_page_private' ) , 1000 );
 			add_filter( 'get_pages', array( $this, 'remove_posts_page_from_menu' ), 1000 );
-			add_filter( 'wp_page_menu_args', array( $this, 'remove_home_menu_item'), 1000 );
+			add_filter( 'wp_page_menu_args', array( $this, 'remove_home_menu_item' ), 1000 );
+			//add_filter( 'widget_posts_args', array( $this, 'remove_posts_from_recent_posts_widget' ), 1000 );
 		}
 	
 		// If user not logged, return 404 for posts page and feeds
@@ -45,7 +46,7 @@ if ( !class_exists( "PrivatePostsPage" ) ) {
 					exit;
 				}
 				// Any type of post - return 404
-				if ( is_single() || is_archive() || is_category() || is_tag() || is_date() || is_author() ) {
+				if ( is_single() || is_archive() || is_category() || is_tag() || is_date() || is_author() || is_search() ) {
 					require TEMPLATEPATH . '/404.php';
 					exit;
 				}
@@ -81,6 +82,16 @@ if ( !class_exists( "PrivatePostsPage" ) ) {
 			}
 			return $args;
 		}
+	
+		//public function remove_posts_from_recent_posts_widget( $args ) {
+		//	$recent_posts = wp_get_recent_posts();
+		//	$recent_posts_ids_arr = array();
+		//	foreach( $recent_posts as $recent ){
+		//		$recent_posts_ids_arr[] = $recent['ID'];
+		//	}
+		//	$args['post__not_in'] = $recent_posts_ids_arr;
+		//	return $args;
+		//}
 	}
 }
 
